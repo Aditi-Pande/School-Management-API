@@ -20,7 +20,7 @@ exports.addSchool = (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  const query = 'INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)';
+  const query = 'INSERT INTO schools (name, address, latitude, longitude) VALUES ($1, $2, $3, $4)';
   db.query(query, [name, address, latitude, longitude], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.status(201).json({ message: 'School added successfully', schoolId: results.insertId });
@@ -36,9 +36,9 @@ exports.listSchools = (req, res) => {
   }
 
   db.query('SELECT * FROM schools', (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) return res.status(500).json({ error: "Database Error" });
 
-    const sortedSchools = results
+    const sortedSchools = results.rows
       .map((school) => ({
         ...school,
         distance: calculateDistance(
@@ -49,6 +49,7 @@ exports.listSchools = (req, res) => {
         ),
       }))
       .sort((a, b) => a.distance - b.distance);
+
 
     res.json(sortedSchools);
   });

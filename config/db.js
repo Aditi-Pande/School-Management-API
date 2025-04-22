@@ -1,13 +1,15 @@
-const { Client } = require('pg');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-const client = new Client({
-    connectionString: process.env.DATABASE_URL 
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // important for Render
+  },
 });
 
-connection.connect((err) => {
-  if (err) throw err;
-  console.log('Connected to PostgreSQL DB!');
-});
+pool.connect()
+  .then(() => console.log('Connected to PostgreSQL DB!'))
+  .catch((err) => console.error('Connection error', err.stack));
 
-module.exports = connection;
+module.exports = pool;
